@@ -1,6 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase/server'
-import { inviteEmailHtml, inviteEmailSubject } from '@/lib/emails/invite'
+import {
+  accountCreatedEmailHtml,
+  accountCreatedEmailSubject,
+  accountCreatedEmailText,
+} from '@/lib/emails/account-created'
 import nodemailer from 'nodemailer'
 import { NextResponse } from 'next/server'
 
@@ -19,43 +23,55 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   }
 
-  const { email, display_name, role, lang = 'fr' } = await request.json()
+  const { email, display_name, password, role, lang = 'fr' } = await request.json()
 
-  if (!email || !display_name) {
-    return NextResponse.json({ error: 'Email et nom requis' }, { status: 400 })
+  if (!email || !display_name || !password) {
+    return NextResponse.json(
+      { error: 'Email, nom et mot de passe requis' },
+      { status: 400 },
+    )
+  }
+
+  if (typeof password !== 'string' || password.length < 8) {
+    return NextResponse.json(
+      { error: 'Le mot de passe doit contenir au moins 8 caractères.' },
+      { status: 400 },
+    )
   }
 
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
+  const loginUrl = `${siteUrl.replace(/\/$/, '')}/login`
 
-  // Générer le lien sans que Supabase envoie l'email
-  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-    type: 'invite',
-    email,
-    options: {
-      redirectTo: `${siteUrl}/auth/callback?type=invite`,
-      data: { display_name },
-    },
-  })
+  const { data: created, error: createError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name },
+    })
 
-  if (linkError) {
-    const msg = linkError.message.toLowerCase().includes('already been registered')
+  if (createError) {
+    const msg = createError.message.toLowerCase().includes('already been registered')
+      || createError.message.toLowerCase().includes('already registered')
       ? 'Un compte avec cet email existe déjà.'
-      : linkError.message
+      : createError.message
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 
-  // Mettre à jour le profil avec le bon rôle et nom
+  if (!created.user) {
+    return NextResponse.json({ error: 'Création utilisateur incomplète' }, { status: 500 })
+  }
+
   await supabaseAdmin
     .from('profiles')
     .update({ role: role ?? 'user', display_name })
-    .eq('id', linkData.user.id)
+    .eq('id', created.user.id)
 
-  // Envoyer l'email via Brevo SMTP
   const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 587,
@@ -69,12 +85,24 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: process.env.BREVO_FROM_EMAIL ?? 'Wecard Thief <noreply@wecardthief.fr>',
       to: email,
-      subject: inviteEmailSubject(lang),
-      html: inviteEmailHtml({ displayName: display_name, inviteUrl: linkData.properties.action_link, lang }),
+      subject: accountCreatedEmailSubject(lang),
+      text: accountCreatedEmailText({
+        displayName: display_name,
+        loginUrl,
+        lang,
+      }),
+      html: accountCreatedEmailHtml({
+        displayName: display_name,
+        loginUrl,
+        lang,
+      }),
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: 'Utilisateur créé mais email non envoyé : ' + message }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Compte créé mais email non envoyé : ' + message },
+      { status: 500 },
+    )
   }
 
   return NextResponse.json({ success: true })

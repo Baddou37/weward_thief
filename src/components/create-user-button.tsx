@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { UserPlus, X, CheckCircle } from 'lucide-react'
+import { UserPlus, X, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 export function CreateUserButton() {
   const [open, setOpen] = useState(false)
@@ -14,6 +14,10 @@ export function CreateUserButton() {
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordConfirm, setPasswordConfirm] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [showPw2, setShowPw2] = useState(false)
   const [role, setRole] = useState<'user' | 'admin'>('user')
   const [lang, setLang] = useState<'fr' | 'en'>('fr')
   const router = useRouter()
@@ -21,6 +25,8 @@ export function CreateUserButton() {
   function reset() {
     setEmail('')
     setDisplayName('')
+    setPassword('')
+    setPasswordConfirm('')
     setRole('user')
     setLang('fr')
     setError('')
@@ -32,10 +38,27 @@ export function CreateUserButton() {
     setLoading(true)
     setError('')
 
+    if (password !== passwordConfirm) {
+      setError('Les mots de passe ne correspondent pas.')
+      setLoading(false)
+      return
+    }
+    if (password.length < 8) {
+      setError('Le mot de passe doit contenir au moins 8 caractères.')
+      setLoading(false)
+      return
+    }
+
     const res = await fetch('/api/admin/create-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, display_name: displayName, role, lang }),
+      body: JSON.stringify({
+        email,
+        display_name: displayName,
+        password,
+        role,
+        lang,
+      }),
     })
 
     const data = await res.json()
@@ -62,7 +85,7 @@ export function CreateUserButton() {
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-sm">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-gray-900">Nouvel utilisateur</h2>
           <button onClick={() => { setOpen(false); reset() }} className="text-gray-400 hover:text-gray-600">
@@ -73,14 +96,14 @@ export function CreateUserButton() {
         {success ? (
           <div className="text-center py-4 space-y-3">
             <CheckCircle className="h-10 w-10 text-green-500 mx-auto" />
-            <p className="font-medium text-gray-900">Invitation envoyée !</p>
+            <p className="font-medium text-gray-900">Compte créé</p>
             <p className="text-sm text-gray-500">
               Un email a été envoyé à <strong>{email}</strong>.<br />
-              L&apos;utilisateur devra cliquer sur le lien pour choisir son mot de passe.
+              Communiquez-lui le mot de passe <strong>hors email</strong> (message, appel) pour qu’il se connecte.
             </p>
             <div className="flex gap-2 pt-2">
               <Button className="flex-1" onClick={() => { reset() }}>
-                Inviter un autre
+                Créer un autre
               </Button>
               <Button variant="outline" onClick={() => { setOpen(false); reset() }}>
                 Fermer
@@ -110,6 +133,53 @@ export function CreateUserButton() {
                 required
               />
             </div>
+            <div className="space-y-1">
+              <Label htmlFor="password">Mot de passe initial</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="8 caractères minimum"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700"
+                  aria-label={showPw ? 'Masquer' : 'Afficher'}
+                >
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="passwordConfirm">Confirmer le mot de passe</Label>
+              <div className="relative">
+                <Input
+                  id="passwordConfirm"
+                  type={showPw2 ? 'text' : 'password'}
+                  value={passwordConfirm}
+                  onChange={e => setPasswordConfirm(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw2(v => !v)}
+                  className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700"
+                  aria-label={showPw2 ? 'Masquer' : 'Afficher'}
+                >
+                  {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label htmlFor="role">Rôle</Label>
@@ -137,15 +207,15 @@ export function CreateUserButton() {
               </div>
             </div>
 
-            <p className="text-xs text-gray-400">
-              Un email d&apos;invitation sera envoyé via Resend. L&apos;utilisateur choisira son mot de passe en cliquant sur le lien.
+            <p className="text-xs text-gray-500">
+              Le mot de passe ne sera pas envoyé par mail : transmettez-le vous-même. L’utilisateur pourra le changer dans l’app (Compte).
             </p>
 
             {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>}
 
             <div className="flex gap-2 pt-1">
               <Button type="submit" className="flex-1" disabled={loading}>
-                {loading ? 'Envoi...' : 'Envoyer l\'invitation'}
+                {loading ? 'Création...' : 'Créer le compte'}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setOpen(false); reset() }}>
                 Annuler

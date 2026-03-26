@@ -14,10 +14,17 @@ function queryErrorMessage(searchParams: {
 }): string {
   const err = searchParams.get('error')
   if (err === 'session') {
-    return 'Le lien de connexion a expiré ou est invalide. Utilisez un nouveau lien d’invitation ou connectez-vous.'
-  }
-  if (err === 'wrong_account') {
-    return 'Une autre session était encore active (autre navigateur ou onglet). Déconnectez-vous ou ouvrez le lien d’invitation dans une fenêtre privée, puis recliquez sur le mail.'
+    const base =
+      'Le lien de connexion a expiré ou est invalide. Utilisez un nouveau lien d’invitation ou connectez-vous.'
+    const reason = searchParams.get('reason')
+    if (reason && process.env.NODE_ENV === 'development') {
+      try {
+        return `${base} Détail (dev) : ${decodeURIComponent(reason)}`
+      } catch {
+        return `${base} Détail (dev) : ${reason}`
+      }
+    }
+    return base
   }
   return ''
 }

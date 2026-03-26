@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, FileText, Plus, LogOut, Shield } from 'lucide-react'
+import { LayoutDashboard, FileText, Plus, LogOut, Shield, KeyRound } from 'lucide-react'
 import type { Profile } from '@/types'
 
 interface NavProps {
@@ -29,6 +29,7 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
   const links = [
     { href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { href: '/signalements/nouveau', label: 'Signaler', icon: Plus },
+    { href: '/compte/mot-de-passe', label: 'Compte', icon: KeyRound },
     ...(isAdmin
       ? [
           {
