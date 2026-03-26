@@ -8,7 +8,7 @@ import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { getArnaqueTypeOptions } from '@/lib/utils'
+import { cn, getArnaqueTypeOptions, nativeSelectClassName } from '@/lib/utils'
 import type { Report } from '@/types'
 import { useLocale } from '@/components/locale-provider'
 import { useTranslations } from '@/lib/i18n/use-translations'
@@ -101,7 +101,7 @@ export function ValidateReportButton({ report }: { report: Report }) {
             <select
               value={arnaqueType}
               onChange={e => setArnaqueType(e.target.value)}
-              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+              className={cn(nativeSelectClassName, 'h-8 min-h-8 px-2')}
             >
               <option value="">{t('validate.select')}</option>
               {arnaqueOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -118,7 +118,7 @@ export function ValidateReportButton({ report }: { report: Report }) {
             <select
               value={status}
               onChange={e => setStatus(e.target.value as 'suspected' | 'confirmed')}
-              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+              className={cn(nativeSelectClassName, 'h-8 min-h-8 px-2')}
             >
               <option value="confirmed">{t('validate.statusConfirmed')}</option>
               <option value="suspected">{t('validate.statusSuspected')}</option>

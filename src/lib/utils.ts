@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Classes pour `<select>` natifs — alignées sur `Input` (`!` en dark pour WebKit / UA). */
+export const nativeSelectClassName =
+  'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:!border-gray-600 dark:!bg-gray-900 dark:!text-gray-100 dark:[color-scheme:dark]'
+
 export function formatDate(dateString: string, locale: Locale = 'fr'): string {
   const tag = locale === 'en' ? 'en-GB' : 'fr-FR'
   return new Intl.DateTimeFormat(tag, {

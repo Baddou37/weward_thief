@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { getArnaqueTypeOptions } from '@/lib/utils'
+import { getArnaqueTypeOptions, nativeSelectClassName } from '@/lib/utils'
 import { Plus, X } from 'lucide-react'
 import type { Thief } from '@/types'
 import { useLocale } from '@/components/locale-provider'
@@ -77,7 +77,7 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
         <select
           value={status}
           onChange={e => setStatus(e.target.value as 'suspected' | 'confirmed')}
-          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={nativeSelectClassName}
         >
           <option value="confirmed">{t('editThief.statusConfirmed')}</option>
           <option value="suspected">{t('editThief.statusSuspected')}</option>
@@ -129,7 +129,7 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
         <select
           value={arnaqueType}
           onChange={e => setArnaqueType(e.target.value)}
-          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={nativeSelectClassName}
         >
           <option value="">{t('editThief.select')}</option>
           {arnaqueOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}

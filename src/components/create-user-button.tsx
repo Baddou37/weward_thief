@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { nativeSelectClassName } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -191,7 +192,7 @@ export function CreateUserButton() {
                   id="role"
                   value={role}
                   onChange={e => setRole(e.target.value as 'user' | 'admin')}
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={nativeSelectClassName}
                 >
                   <option value="user">{t('admin.user')}</option>
                   <option value="admin">{t('admin.admin')}</option>
@@ -203,7 +204,7 @@ export function CreateUserButton() {
                   id="lang"
                   value={lang}
                   onChange={e => setLang(e.target.value as 'fr' | 'en')}
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={nativeSelectClassName}
                 >
                   <option value="fr">🇫🇷 Français</option>
                   <option value="en">🇬🇧 English</option>
