@@ -34,7 +34,7 @@ export default async function SignalementsPage() {
 
       <div className="space-y-6">
         {reports?.map((report) => (
-          <div key={report.id} className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+          <div key={report.id} className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="font-medium text-gray-900">
