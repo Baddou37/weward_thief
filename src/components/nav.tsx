@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { LayoutDashboard, FileText, Plus, LogOut, Shield, KeyRound } from 'lucide-react'
 import type { Profile } from '@/types'
+import { useTranslations } from '@/lib/i18n/use-translations'
+import { AppSettingsMenu } from '@/components/app-settings-menu'
 
 interface NavProps {
   profile: Profile
@@ -17,6 +19,7 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const t = useTranslations()
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -27,18 +30,18 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
   const isAdmin = profile.role === 'admin'
 
   const links = [
-    { href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-    { href: '/signalements/nouveau', label: 'Signaler', icon: Plus },
-    { href: '/compte/mot-de-passe', label: 'Compte', icon: KeyRound },
+    { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: '/signalements/nouveau', label: t('nav.report'), icon: Plus },
+    { href: '/compte/mot-de-passe', label: t('nav.account'), icon: KeyRound },
     ...(isAdmin
       ? [
           {
             href: '/signalements',
-            label: 'Signalements',
+            label: t('nav.reports'),
             icon: FileText,
             badge: pendingCount > 0 ? pendingCount : undefined,
           },
-          { href: '/admin/utilisateurs', label: 'Utilisateurs', icon: Shield },
+          { href: '/admin/utilisateurs', label: t('nav.users'), icon: Shield },
         ]
       : []),
   ]
@@ -46,10 +49,13 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-56 lg:min-h-screen bg-white border-r border-gray-200 p-4">
-        <div className="mb-6">
-          <h1 className="text-lg font-bold text-gray-900">Wecard Thief</h1>
-          <p className="text-xs text-gray-500">{profile.display_name}</p>
+      <aside className="hidden lg:flex lg:flex-col lg:w-56 lg:min-h-screen bg-white border-r border-gray-200 p-4 dark:bg-gray-900 dark:border-gray-700">
+        <div className="mb-6 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('common.appName')}</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{profile.display_name}</p>
+          </div>
+          <AppSettingsMenu />
         </div>
         <nav className="flex-1 space-y-1">
           {links.map((link) => {
@@ -61,8 +67,8 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                   pathname === link.href || pathname.startsWith(link.href + '/')
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
+                    : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800',
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -78,12 +84,12 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
         </nav>
         <Button variant="ghost" size="sm" onClick={handleLogout} className="justify-start gap-2 text-gray-600">
           <LogOut className="h-4 w-4" />
-          Déconnexion
+          {t('nav.logout')}
         </Button>
       </aside>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-50">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-50 dark:bg-gray-900 dark:border-gray-700">
         {links.map((link) => {
           const Icon = link.icon
           const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
@@ -93,7 +99,7 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
               href={link.href}
               className={cn(
                 'flex-1 flex flex-col items-center py-2 text-xs gap-1 relative',
-                isActive ? 'text-blue-600' : 'text-gray-500'
+                isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400',
               )}
             >
               <Icon className="h-5 w-5" />
@@ -108,10 +114,10 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
         })}
         <button
           onClick={handleLogout}
-          className="flex-1 flex flex-col items-center py-2 text-xs gap-1 text-gray-500"
+          className="flex-1 flex flex-col items-center py-2 text-xs gap-1 text-gray-500 dark:text-gray-400"
         >
           <LogOut className="h-5 w-5" />
-          <span>Sortir</span>
+          <span>{t('nav.exit')}</span>
         </button>
       </nav>
     </>

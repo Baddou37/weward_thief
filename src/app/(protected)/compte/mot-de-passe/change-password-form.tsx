@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from '@/lib/i18n/use-translations'
 
 export function ChangePasswordForm() {
   const [password, setPassword] = useState('')
@@ -15,16 +16,17 @@ export function ChangePasswordForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const t = useTranslations()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (password !== confirm) {
-      setError('Les mots de passe ne correspondent pas.')
+      setError(t('account.pwdMismatch'))
       return
     }
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
+      setError(t('account.pwdShort'))
       return
     }
 
@@ -45,7 +47,7 @@ export function ChangePasswordForm() {
   if (done) {
     return (
       <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
-        Mot de passe mis à jour. Vous pouvez continuer à utiliser l’application.
+        {t('account.success')}
       </p>
     )
   }
@@ -53,14 +55,14 @@ export function ChangePasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
-        <Label htmlFor="new-password">Nouveau mot de passe</Label>
+        <Label htmlFor="new-password">{t('account.newPassword')}</Label>
         <div className="relative">
           <Input
             id="new-password"
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="8 caractères minimum"
+            placeholder={t('createUser.minChars')}
             required
             minLength={8}
             autoComplete="new-password"
@@ -71,7 +73,7 @@ export function ChangePasswordForm() {
             onClick={() => setShowPassword(v => !v)}
             className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-r-md"
             aria-label={
-              showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+              showPassword ? t('account.hidePassword') : t('account.showPassword')
             }
           >
             {showPassword ? (
@@ -83,7 +85,7 @@ export function ChangePasswordForm() {
         </div>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="confirm-new">Confirmer le mot de passe</Label>
+        <Label htmlFor="confirm-new">{t('account.confirmPassword')}</Label>
         <div className="relative">
           <Input
             id="confirm-new"
@@ -102,8 +104,8 @@ export function ChangePasswordForm() {
             className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-r-md"
             aria-label={
               showConfirm
-                ? 'Masquer la confirmation'
-                : 'Afficher la confirmation'
+                ? t('account.hideConfirm')
+                : t('account.showConfirm')
             }
           >
             {showConfirm ? (
@@ -115,12 +117,12 @@ export function ChangePasswordForm() {
         </div>
       </div>
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-900 dark:text-red-400 rounded-md p-3">
           {error}
         </p>
       )}
       <Button type="submit" disabled={loading}>
-        {loading ? 'Enregistrement...' : 'Enregistrer le nouveau mot de passe'}
+        {loading ? t('account.saving') : t('account.save')}
       </Button>
     </form>
   )

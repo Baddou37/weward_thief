@@ -7,12 +7,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { ARNAQUE_TYPES } from '@/lib/utils'
+import { getArnaqueTypeOptions } from '@/lib/utils'
 import { Plus, X } from 'lucide-react'
 import type { Thief } from '@/types'
+import { useLocale } from '@/components/locale-provider'
+import { useTranslations } from '@/lib/i18n/use-translations'
+import { interpolate } from '@/lib/i18n/dictionaries'
 
 export function EditThiefForm({ thief }: { thief: Thief }) {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations()
+  const arnaqueOptions = getArnaqueTypeOptions(locale)
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -54,7 +61,7 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
     }).eq('id', thief.id)
 
     if (updateError) {
-      setError('Erreur lors de la mise à jour.')
+      setError(t('editThief.updateError'))
       setLoading(false)
       return
     }
@@ -64,42 +71,46 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
+    <form onSubmit={handleSubmit} className="space-y-5 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 lg:p-6">
       <div className="space-y-1">
-        <Label>Statut</Label>
+        <Label>{t('editThief.status')}</Label>
         <select
           value={status}
           onChange={e => setStatus(e.target.value as 'suspected' | 'confirmed')}
           className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="confirmed">Confirmé</option>
-          <option value="suspected">Suspecté</option>
+          <option value="confirmed">{t('editThief.statusConfirmed')}</option>
+          <option value="suspected">{t('editThief.statusSuspected')}</option>
         </select>
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-gray-700">Identité Facebook</legend>
+        <legend className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('editThief.fbIdentity')}</legend>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label htmlFor="firstName">Prénom</Label>
+            <Label htmlFor="firstName">{t('editThief.firstName')}</Label>
             <Input id="firstName" value={facebookFirstName} onChange={e => setFacebookFirstName(e.target.value)} />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="lastName">Nom</Label>
+            <Label htmlFor="lastName">{t('editThief.lastName')}</Label>
             <Input id="lastName" value={facebookLastName} onChange={e => setFacebookLastName(e.target.value)} />
           </div>
         </div>
         <div className="space-y-1">
-          <Label htmlFor="fbUrl">Lien profil Facebook</Label>
+          <Label htmlFor="fbUrl">{t('editThief.fbUrl')}</Label>
           <Input id="fbUrl" type="url" value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} />
         </div>
       </fieldset>
 
       <div className="space-y-2">
-        <Label>Pseudo(s) Weward</Label>
+        <Label>{t('editThief.pseudos')}</Label>
         {wewardPseudos.map((pseudo, i) => (
           <div key={i} className="flex gap-2">
-            <Input value={pseudo} onChange={e => updatePseudo(i, e.target.value)} placeholder={`Pseudo ${i + 1}`} />
+            <Input
+              value={pseudo}
+              onChange={e => updatePseudo(i, e.target.value)}
+              placeholder={interpolate(t('editThief.pseudoN'), { n: i + 1 })}
+            />
             {wewardPseudos.length > 1 && (
               <button type="button" onClick={() => removePseudo(i)} className="text-gray-400 hover:text-red-500">
                 <X className="h-4 w-4" />
@@ -109,29 +120,29 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
         ))}
         <button type="button" onClick={addPseudo} className="text-sm text-blue-600 hover:underline flex items-center gap-1">
           <Plus className="h-3 w-3" />
-          Ajouter un pseudo
+          {t('editThief.addPseudo')}
         </button>
       </div>
 
       <div className="space-y-1">
-        <Label>Type d&apos;arnaque</Label>
+        <Label>{t('editThief.scamType')}</Label>
         <select
           value={arnaqueType}
           onChange={e => setArnaqueType(e.target.value)}
           className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Sélectionner...</option>
-          {ARNAQUE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          <option value="">{t('editThief.select')}</option>
+          {arnaqueOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
       </div>
 
       <div className="space-y-1">
-        <Label>Description</Label>
+        <Label>{t('editThief.description')}</Label>
         <Textarea value={description} onChange={e => setDescription(e.target.value)} rows={4} />
       </div>
 
       <div className="space-y-2">
-        <Label>Liens vers les preuves</Label>
+        <Label>{t('editThief.proofLinks')}</Label>
         {infractionUrls.map((url, i) => (
           <div key={i} className="flex gap-2">
             <Input type="url" value={url} onChange={e => updateUrl(i, e.target.value)} placeholder="https://..." />
@@ -144,14 +155,14 @@ export function EditThiefForm({ thief }: { thief: Thief }) {
         ))}
         <button type="button" onClick={addUrl} className="text-sm text-blue-600 hover:underline flex items-center gap-1">
           <Plus className="h-3 w-3" />
-          Ajouter un lien
+          {t('editThief.addLink')}
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">{error}</p>}
+      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-900 dark:text-red-400 rounded-md p-3">{error}</p>}
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Enregistrement...' : 'Enregistrer les modifications'}
+        {loading ? t('editThief.saving') : t('editThief.save')}
       </Button>
     </form>
   )

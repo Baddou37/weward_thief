@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from '@/lib/i18n/use-translations'
 
 export function ToggleUserButton({
   userId,
@@ -16,6 +17,7 @@ export function ToggleUserButton({
 }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const t = useTranslations()
 
   async function handle() {
     setLoading(true)
@@ -34,7 +36,7 @@ export function ToggleUserButton({
       onClick={handle}
       disabled={loading}
     >
-      {isActive ? 'Désactiver' : 'Réactiver'}
+      {isActive ? t('toggleUser.deactivate') : t('toggleUser.reactivate')}
     </Button>
   )
 }

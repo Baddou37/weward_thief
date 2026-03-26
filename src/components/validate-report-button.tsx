@@ -8,15 +8,19 @@ import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { ARNAQUE_TYPES } from '@/lib/utils'
+import { getArnaqueTypeOptions } from '@/lib/utils'
 import type { Report } from '@/types'
+import { useLocale } from '@/components/locale-provider'
+import { useTranslations } from '@/lib/i18n/use-translations'
 
 export function ValidateReportButton({ report }: { report: Report }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations()
+  const arnaqueOptions = getArnaqueTypeOptions(locale)
 
-  // Formulaire pré-rempli
   const [facebookFirstName, setFacebookFirstName] = useState(report.facebook_first_name ?? '')
   const [facebookLastName, setFacebookLastName] = useState(report.facebook_last_name ?? '')
   const [facebookUrl, setFacebookUrl] = useState(report.facebook_url ?? '')
@@ -63,66 +67,66 @@ export function ValidateReportButton({ report }: { report: Report }) {
         className="w-full"
       >
         <CheckCircle className="h-4 w-4 mr-1" />
-        Valider
+        {t('validate.validate')}
         {open ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
       </Button>
 
       {open && (
-        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md space-y-3">
-          <p className="text-xs font-medium text-green-800">Vérifier et confirmer les données :</p>
+        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md space-y-3 dark:bg-green-950/40 dark:border-green-900">
+          <p className="text-xs font-medium text-green-800 dark:text-green-200">{t('validate.verifyTitle')}</p>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-xs">Prénom</Label>
+              <Label className="text-xs">{t('validate.firstName')}</Label>
               <Input className="h-8 text-sm" value={facebookFirstName} onChange={e => setFacebookFirstName(e.target.value)} />
             </div>
             <div>
-              <Label className="text-xs">Nom</Label>
+              <Label className="text-xs">{t('validate.lastName')}</Label>
               <Input className="h-8 text-sm" value={facebookLastName} onChange={e => setFacebookLastName(e.target.value)} />
             </div>
           </div>
 
           <div>
-            <Label className="text-xs">URL Facebook</Label>
+            <Label className="text-xs">{t('validate.fbUrl')}</Label>
             <Input className="h-8 text-sm" value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} />
           </div>
 
           <div>
-            <Label className="text-xs">Pseudos Weward (séparés par virgule)</Label>
+            <Label className="text-xs">{t('validate.pseudosCsv')}</Label>
             <Input className="h-8 text-sm" value={wewardPseudos} onChange={e => setWewardPseudos(e.target.value)} />
           </div>
 
           <div>
-            <Label className="text-xs">Type d&apos;arnaque</Label>
+            <Label className="text-xs">{t('validate.scamType')}</Label>
             <select
               value={arnaqueType}
               onChange={e => setArnaqueType(e.target.value)}
-              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
             >
-              <option value="">Sélectionner...</option>
-              {ARNAQUE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              <option value="">{t('validate.select')}</option>
+              {arnaqueOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
 
           <div>
-            <Label className="text-xs">Description</Label>
+            <Label className="text-xs">{t('validate.description')}</Label>
             <Textarea className="text-sm" rows={2} value={description} onChange={e => setDescription(e.target.value)} />
           </div>
 
           <div>
-            <Label className="text-xs">Statut</Label>
+            <Label className="text-xs">{t('validate.status')}</Label>
             <select
               value={status}
               onChange={e => setStatus(e.target.value as 'suspected' | 'confirmed')}
-              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
             >
-              <option value="confirmed">Confirmé</option>
-              <option value="suspected">Suspecté</option>
+              <option value="confirmed">{t('validate.statusConfirmed')}</option>
+              <option value="suspected">{t('validate.statusSuspected')}</option>
             </select>
           </div>
 
           <Button size="sm" onClick={handleValidate} disabled={loading} className="w-full">
-            {loading ? 'Validation...' : 'Confirmer la validation'}
+            {loading ? t('validate.validating') : t('validate.confirm')}
           </Button>
         </div>
       )}

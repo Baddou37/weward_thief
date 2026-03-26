@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { EditThiefForm } from '@/components/edit-thief-form'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { getT } from '@/lib/i18n/server'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -10,6 +11,7 @@ interface PageProps {
 
 export default async function ModifierThiefPage({ params }: PageProps) {
   const { id } = await params
+  const { t } = await getT()
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -24,12 +26,12 @@ export default async function ModifierThiefPage({ params }: PageProps) {
   return (
     <div className="p-4 lg:p-6 max-w-lg mx-auto">
       <div className="mb-4">
-        <Link href={`/voleurs/${id}`} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+        <Link href={`/voleurs/${id}`} className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200">
           <ArrowLeft className="h-4 w-4" />
-          Retour à la fiche
+          {t('thiefEdit.back')}
         </Link>
       </div>
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Modifier l&apos;entrée</h1>
+      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('thiefEdit.title')}</h1>
       <EditThiefForm thief={thief} />
     </div>
   )

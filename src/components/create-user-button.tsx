@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UserPlus, X, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from '@/lib/i18n/use-translations'
 
 export function CreateUserButton() {
   const [open, setOpen] = useState(false)
@@ -21,6 +22,7 @@ export function CreateUserButton() {
   const [role, setRole] = useState<'user' | 'admin'>('user')
   const [lang, setLang] = useState<'fr' | 'en'>('fr')
   const router = useRouter()
+  const t = useTranslations()
 
   function reset() {
     setEmail('')
@@ -39,12 +41,12 @@ export function CreateUserButton() {
     setError('')
 
     if (password !== passwordConfirm) {
-      setError('Les mots de passe ne correspondent pas.')
+      setError(t('createUser.pwdMismatch'))
       setLoading(false)
       return
     }
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
+      setError(t('createUser.pwdShort'))
       setLoading(false)
       return
     }
@@ -64,7 +66,7 @@ export function CreateUserButton() {
     const data = await res.json()
 
     if (!res.ok) {
-      setError(data.error ?? 'Erreur lors de la création')
+      setError(data.error ?? t('createUser.genericError'))
       setLoading(false)
       return
     }
@@ -78,17 +80,17 @@ export function CreateUserButton() {
     return (
       <Button onClick={() => setOpen(true)} size="sm">
         <UserPlus className="h-4 w-4 mr-1" />
-        Nouvel utilisateur
+        {t('createUser.button')}
       </Button>
     )
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg border border-gray-200 p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900">Nouvel utilisateur</h2>
-          <button onClick={() => { setOpen(false); reset() }} className="text-gray-400 hover:text-gray-600">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">{t('createUser.title')}</h2>
+          <button onClick={() => { setOpen(false); reset() }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -96,24 +98,26 @@ export function CreateUserButton() {
         {success ? (
           <div className="text-center py-4 space-y-3">
             <CheckCircle className="h-10 w-10 text-green-500 mx-auto" />
-            <p className="font-medium text-gray-900">Compte créé</p>
-            <p className="text-sm text-gray-500">
-              Un email a été envoyé à <strong>{email}</strong>.<br />
-              Communiquez-lui le mot de passe <strong>hors email</strong> (message, appel) pour qu’il se connecte.
+            <p className="font-medium text-gray-900">{t('createUser.successTitle')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t('createUser.successBodyPrefix')}{' '}
+              <strong>{email}</strong>
+              {'. '}
+              {t('createUser.successBodySuffix')}
             </p>
             <div className="flex gap-2 pt-2">
               <Button className="flex-1" onClick={() => { reset() }}>
-                Créer un autre
+                {t('createUser.createAnother')}
               </Button>
               <Button variant="outline" onClick={() => { setOpen(false); reset() }}>
-                Fermer
+                {t('createUser.close')}
               </Button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleCreate} className="space-y-3">
             <div className="space-y-1">
-              <Label htmlFor="displayName">Nom affiché</Label>
+              <Label htmlFor="displayName">{t('createUser.displayName')}</Label>
               <Input
                 id="displayName"
                 value={displayName}
@@ -123,7 +127,7 @@ export function CreateUserButton() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('createUser.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -134,14 +138,14 @@ export function CreateUserButton() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="password">Mot de passe initial</Label>
+              <Label htmlFor="password">{t('createUser.initialPassword')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="8 caractères minimum"
+                  placeholder={t('createUser.minChars')}
                   required
                   minLength={8}
                   autoComplete="new-password"
@@ -151,14 +155,14 @@ export function CreateUserButton() {
                   type="button"
                   onClick={() => setShowPw(v => !v)}
                   className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700"
-                  aria-label={showPw ? 'Masquer' : 'Afficher'}
+                  aria-label={showPw ? t('createUser.hide') : t('createUser.show')}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="passwordConfirm">Confirmer le mot de passe</Label>
+              <Label htmlFor="passwordConfirm">{t('createUser.confirmPassword')}</Label>
               <div className="relative">
                 <Input
                   id="passwordConfirm"
@@ -174,7 +178,7 @@ export function CreateUserButton() {
                   type="button"
                   onClick={() => setShowPw2(v => !v)}
                   className="absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-500 hover:text-gray-700"
-                  aria-label={showPw2 ? 'Masquer' : 'Afficher'}
+                  aria-label={showPw2 ? t('createUser.hide') : t('createUser.show')}
                 >
                   {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -182,19 +186,19 @@ export function CreateUserButton() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="role">Rôle</Label>
+                <Label htmlFor="role">{t('createUser.role')}</Label>
                 <select
                   id="role"
                   value={role}
                   onChange={e => setRole(e.target.value as 'user' | 'admin')}
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="user">Utilisateur</option>
-                  <option value="admin">Administrateur</option>
+                  <option value="user">{t('admin.user')}</option>
+                  <option value="admin">{t('admin.admin')}</option>
                 </select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="lang">Langue de l&apos;email</Label>
+                <Label htmlFor="lang">{t('createUser.emailLang')}</Label>
                 <select
                   id="lang"
                   value={lang}
@@ -207,18 +211,18 @@ export function CreateUserButton() {
               </div>
             </div>
 
-            <p className="text-xs text-gray-500">
-              Le mot de passe ne sera pas envoyé par mail : transmettez-le vous-même. L’utilisateur pourra le changer dans l’app (Compte).
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {t('createUser.hint')}
             </p>
 
-            {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">{error}</p>}
+            {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-900 dark:text-red-400 rounded p-2">{error}</p>}
 
             <div className="flex gap-2 pt-1">
               <Button type="submit" className="flex-1" disabled={loading}>
-                {loading ? 'Création...' : 'Créer le compte'}
+                {loading ? t('createUser.creating') : t('createUser.create')}
               </Button>
               <Button type="button" variant="outline" onClick={() => { setOpen(false); reset() }}>
-                Annuler
+                {t('createUser.cancel')}
               </Button>
             </div>
           </form>
