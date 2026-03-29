@@ -9,7 +9,7 @@ import { LocaleSwitcher } from '@/components/locale-switcher'
 import { useTranslations } from '@/lib/i18n/use-translations'
 import { cn } from '@/lib/utils'
 
-export function AppSettingsMenu({ className, onLogout }: { className?: string; onLogout?: () => void }) {
+export function AppSettingsMenu({ className, buttonClassName, onLogout }: { className?: string; buttonClassName?: string; onLogout?: () => void }) {
   const t = useTranslations()
   const [open, setOpen] = useState(false)
 
@@ -33,7 +33,7 @@ export function AppSettingsMenu({ className, onLogout }: { className?: string; o
         type="button"
         variant="outline"
         size="icon"
-        className="h-10 w-10 shrink-0 border-gray-300 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900"
+        className={cn("h-10 w-10 shrink-0 border-gray-300 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-900", buttonClassName)}
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-haspopup="dialog"

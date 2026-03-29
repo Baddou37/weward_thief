@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Nav } from '@/components/nav'
-import { MobileSettingsMenu } from '@/components/mobile-settings-menu'
 import type { Profile } from '@/types'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -26,10 +25,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen">
       <Nav profile={profile as Profile} />
-      <main className="flex-1 pb-20 lg:pb-0 relative">
-        <div className="lg:hidden fixed top-4 right-4 z-40">
-          <MobileSettingsMenu />
-        </div>
+      <main className="flex-1 pb-20 lg:pb-0">
         {children}
       </main>
     </div>

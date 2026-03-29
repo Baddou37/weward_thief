@@ -103,6 +103,9 @@ export function Nav({ profile }: NavProps) {
             </Link>
           )
         })}
+        <div className="flex items-center justify-center px-4 text-gray-500 dark:text-gray-400">
+          <AppSettingsMenu onLogout={handleLogout} buttonClassName="border-0 bg-transparent shadow-none dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-transparent dark:hover:bg-transparent" />
+        </div>
       </nav>
     </>
   )
