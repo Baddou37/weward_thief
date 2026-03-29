@@ -10,13 +10,15 @@ export default async function UtilisateursPage() {
   const { locale, t } = await getT()
   const supabase = await createClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) redirect('/login')
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+  if (!authUser) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', session.user.id)
+    .eq('id', authUser.id)
     .single()
 
   if (profile?.role !== 'admin') redirect('/dashboard')
@@ -34,12 +36,9 @@ export default async function UtilisateursPage() {
 
   return (
     <div className="p-4 lg:p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('admin.title')}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{countLabel}</p>
-        </div>
-        <CreateUserButton />
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('admin.title')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{countLabel}</p>
       </div>
 
       <div className="space-y-3">
@@ -60,11 +59,15 @@ export default async function UtilisateursPage() {
               <ToggleUserButton
                 userId={user.id}
                 isActive={user.is_active}
-                isSelf={user.id === session.user.id}
+                isSelf={user.id === authUser.id}
               />
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <CreateUserButton />
       </div>
     </div>
   )

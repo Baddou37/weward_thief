@@ -1,14 +1,15 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, LogOut, KeyRound } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { useTranslations } from '@/lib/i18n/use-translations'
 import { cn } from '@/lib/utils'
 
-export function AppSettingsMenu({ className }: { className?: string }) {
+export function AppSettingsMenu({ className, onLogout }: { className?: string; onLogout?: () => void }) {
   const t = useTranslations()
   const [open, setOpen] = useState(false)
 
@@ -70,7 +71,7 @@ export function AppSettingsMenu({ className }: { className?: string }) {
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="flex-1 space-y-8 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-8">
               <section>
                 <p className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   {t('theme.label')}
@@ -85,6 +86,26 @@ export function AppSettingsMenu({ className }: { className?: string }) {
                   <LocaleSwitcher className="border-0 bg-gray-50 shadow-none dark:bg-gray-800/80" />
                 </Suspense>
               </section>
+              {onLogout && (
+                <section className="space-y-1">
+                  <Link
+                    href="/compte/mot-de-passe"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <KeyRound className="h-4 w-4" />
+                    {t('nav.account')}
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 text-gray-600 dark:text-gray-300"
+                    onClick={() => { setOpen(false); onLogout() }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t('nav.logout')}
+                  </Button>
+                </section>
+              )}
             </div>
           </div>
         </div>

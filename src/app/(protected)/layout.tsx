@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Nav } from '@/components/nav'
-import { AppSettingsMenu } from '@/components/app-settings-menu'
+import { MobileSettingsMenu } from '@/components/mobile-settings-menu'
 import type { Profile } from '@/types'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user ?? null
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
@@ -37,7 +38,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
       <Nav profile={profile as Profile} pendingCount={pendingCount} />
       <main className="flex-1 pb-20 lg:pb-0 relative">
         <div className="lg:hidden fixed top-4 right-4 z-40">
-          <AppSettingsMenu />
+          <MobileSettingsMenu />
         </div>
         {children}
       </main>

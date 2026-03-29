@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, FileText, Plus, LogOut, Shield, KeyRound } from 'lucide-react'
+import { Home, ClipboardList, UserX, Users, LogOut } from 'lucide-react'
 import type { Profile } from '@/types'
 import { useTranslations } from '@/lib/i18n/use-translations'
 import { AppSettingsMenu } from '@/components/app-settings-menu'
@@ -30,18 +30,18 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
   const isAdmin = profile.role === 'admin'
 
   const links = [
-    { href: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
-    { href: '/signalements/nouveau', label: t('nav.report'), icon: Plus },
-    { href: '/compte/mot-de-passe', label: t('nav.account'), icon: KeyRound },
+    { href: '/dashboard', label: t('nav.dashboard'), icon: Home },
+    { href: '/signalements/nouveau', label: t('nav.report'), icon: UserX, exact: true },
     ...(isAdmin
       ? [
           {
             href: '/signalements',
             label: t('nav.reports'),
-            icon: FileText,
+            icon: ClipboardList,
+            exact: true,
             badge: pendingCount > 0 ? pendingCount : undefined,
           },
-          { href: '/admin/utilisateurs', label: t('nav.users'), icon: Shield },
+          { href: '/admin/utilisateurs', label: t('nav.users'), icon: Users },
         ]
       : []),
   ]
@@ -55,7 +55,7 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
             <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('common.appName')}</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">{profile.display_name}</p>
           </div>
-          <AppSettingsMenu />
+          <AppSettingsMenu onLogout={handleLogout} />
         </div>
         <nav className="flex-1 space-y-1">
           {links.map((link) => {
@@ -66,7 +66,7 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
                 href={link.href}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                  pathname === link.href || pathname.startsWith(link.href + '/')
+                  pathname === link.href || (!('exact' in link && link.exact) && pathname.startsWith(link.href + '/'))
                     ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300'
                     : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800',
                 )}
@@ -92,18 +92,17 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-50 dark:bg-gray-900 dark:border-gray-700">
         {links.map((link) => {
           const Icon = link.icon
-          const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
+          const isActive = pathname === link.href || (!('exact' in link && link.exact) && pathname.startsWith(link.href + '/'))
           return (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                'flex-1 flex flex-col items-center py-2 text-xs gap-1 relative',
+                'flex-1 flex flex-col items-center py-4 relative',
                 isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400',
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="truncate max-w-[4rem]">{link.label}</span>
+              <Icon className="h-6 w-6" />
               {'badge' in link && link.badge !== undefined && (
                 <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {link.badge}
@@ -112,13 +111,6 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
             </Link>
           )
         })}
-        <button
-          onClick={handleLogout}
-          className="flex-1 flex flex-col items-center py-2 text-xs gap-1 text-gray-500 dark:text-gray-400"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>{t('nav.exit')}</span>
-        </button>
       </nav>
     </>
   )
