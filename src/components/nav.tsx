@@ -65,11 +65,6 @@ export function Nav({ profile }: NavProps) {
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 <span>{link.label}</span>
-                {'badge' in link && link.badge !== undefined && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {link.badge}
-                  </span>
-                )}
               </Link>
             )
           })}
@@ -95,11 +90,6 @@ export function Nav({ profile }: NavProps) {
               )}
             >
               <Icon className="h-6 w-6" />
-              {'badge' in link && link.badge !== undefined && (
-                <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                  {link.badge}
-                </span>
-              )}
             </Link>
           )
         })}
