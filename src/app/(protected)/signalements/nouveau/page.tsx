@@ -62,7 +62,7 @@ export default function NouveauSignalementPage() {
       return
     }
 
-    const { error: insertError } = await supabase.from('reports').insert({
+    const { error: insertError } = await supabase.from('thieves').insert({
       facebook_first_name: facebookFirstName || null,
       facebook_last_name: facebookLastName || null,
       facebook_url: facebookUrl || null,
@@ -70,7 +70,8 @@ export default function NouveauSignalementPage() {
       arnaque_type: arnaqueType || null,
       description: description || null,
       infraction_urls: infractionUrls.filter(u => u.trim()),
-      submitted_by: user.id,
+      created_by: user.id,
+      status: 'confirmed',
     })
 
     if (insertError) {

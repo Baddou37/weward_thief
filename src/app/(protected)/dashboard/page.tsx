@@ -62,8 +62,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             href={`/voleurs/${thief.id}`}
             className="block"
           >
-            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
-              <div>
+            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors overflow-hidden">
+              <div className="min-w-0">
                   <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                     {thief.weward_pseudos.length > 0 ? (
                       thief.weward_pseudos.join(", ")

@@ -5,17 +5,16 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Home, ClipboardList, UserX, Users, LogOut } from 'lucide-react'
+import { Home, UserX, Users, LogOut } from 'lucide-react'
 import type { Profile } from '@/types'
 import { useTranslations } from '@/lib/i18n/use-translations'
 import { AppSettingsMenu } from '@/components/app-settings-menu'
 
 interface NavProps {
   profile: Profile
-  pendingCount?: number
 }
 
-export function Nav({ profile, pendingCount = 0 }: NavProps) {
+export function Nav({ profile }: NavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -34,13 +33,6 @@ export function Nav({ profile, pendingCount = 0 }: NavProps) {
     { href: '/signalements/nouveau', label: t('nav.report'), icon: UserX, exact: true },
     ...(isAdmin
       ? [
-          {
-            href: '/signalements',
-            label: t('nav.reports'),
-            icon: ClipboardList,
-            exact: true,
-            badge: pendingCount > 0 ? pendingCount : undefined,
-          },
           { href: '/admin/utilisateurs', label: t('nav.users'), icon: Users },
         ]
       : []),

@@ -20,7 +20,6 @@ export function CreateUserButton() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [showPw2, setShowPw2] = useState(false)
-  const [role, setRole] = useState<'user' | 'admin'>('user')
   const [lang, setLang] = useState<'fr' | 'en'>('fr')
   const router = useRouter()
   const t = useTranslations()
@@ -30,7 +29,6 @@ export function CreateUserButton() {
     setDisplayName('')
     setPassword('')
     setPasswordConfirm('')
-    setRole('user')
     setLang('fr')
     setError('')
     setSuccess(false)
@@ -59,7 +57,7 @@ export function CreateUserButton() {
         email,
         display_name: displayName,
         password,
-        role,
+        role: 'admin',
         lang,
       }),
     })
@@ -185,31 +183,17 @@ export function CreateUserButton() {
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="role">{t('createUser.role')}</Label>
-                <select
-                  id="role"
-                  value={role}
-                  onChange={e => setRole(e.target.value as 'user' | 'admin')}
-                  className={nativeSelectClassName}
-                >
-                  <option value="user">{t('admin.user')}</option>
-                  <option value="admin">{t('admin.admin')}</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="lang">{t('createUser.emailLang')}</Label>
-                <select
-                  id="lang"
-                  value={lang}
-                  onChange={e => setLang(e.target.value as 'fr' | 'en')}
-                  className={nativeSelectClassName}
-                >
-                  <option value="fr">🇫🇷 Français</option>
-                  <option value="en">🇬🇧 English</option>
-                </select>
-              </div>
+            <div className="space-y-1">
+              <Label htmlFor="lang">{t('createUser.emailLang')}</Label>
+              <select
+                id="lang"
+                value={lang}
+                onChange={e => setLang(e.target.value as 'fr' | 'en')}
+                className={nativeSelectClassName}
+              >
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
             </div>
 
             <p className="text-xs text-gray-500 dark:text-gray-400">

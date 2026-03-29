@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { StatusBadge } from '@/components/status-badge'
 import { formatDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -38,8 +37,8 @@ export default async function ThiefPage({ params }: PageProps) {
   const fullName = [thief.facebook_first_name, thief.facebook_last_name].filter(Boolean).join(' ')
 
   return (
-    <div className="p-4 lg:p-6 max-w-2xl mx-auto">
-      <div className="mb-4">
+    <div className="p-4 pt-6 lg:p-6 max-w-2xl mx-auto">
+      <div className="mb-6">
         <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-200">
           <ArrowLeft className="h-4 w-4" />
           {t('thief.backDashboard')}
@@ -47,8 +46,7 @@ export default async function ThiefPage({ params }: PageProps) {
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 lg:p-6 space-y-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div>
             {fullName ? (
               thief.facebook_url ? (
                 <a
@@ -66,8 +64,6 @@ export default async function ThiefPage({ params }: PageProps) {
             ) : (
               <h1 className="text-xl font-bold text-gray-400 dark:text-gray-500">{t('thief.unknownName')}</h1>
             )}
-          </div>
-          <StatusBadge status={thief.status} />
         </div>
 
         <div>

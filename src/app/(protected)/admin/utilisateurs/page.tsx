@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { CreateUserButton } from '@/components/create-user-button'
 import { ToggleUserButton } from '@/components/toggle-user-button'
 import { getT } from '@/lib/i18n/server'
@@ -48,9 +47,6 @@ export default async function UtilisateursPage() {
               {/* inline-flex : évite une ligne pleine largeur (email) qui pousse le badge à droite */}
               <div className="inline-flex max-w-full flex-wrap items-center gap-2">
                 <span className="font-medium text-gray-900 dark:text-gray-100">{user.display_name}</span>
-                <Badge variant={user.role === 'admin' ? 'confirmed' : 'pending'} className="shrink-0">
-                  {user.role === 'admin' ? t('admin.admin') : t('admin.user')}
-                </Badge>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('admin.createdOn')} {formatDate(user.created_at, locale)}</p>
