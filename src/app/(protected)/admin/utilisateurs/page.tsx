@@ -44,10 +44,7 @@ export default async function UtilisateursPage() {
         {users?.map((user) => (
           <div key={user.id} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between gap-4">
             <div className="min-w-0">
-              {/* inline-flex : évite une ligne pleine largeur (email) qui pousse le badge à droite */}
-              <div className="inline-flex max-w-full flex-wrap items-center gap-2">
-                <span className="font-medium text-gray-900 dark:text-gray-100">{user.display_name}</span>
-              </div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">{user.display_name}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('admin.createdOn')} {formatDate(user.created_at, locale)}</p>
             </div>
