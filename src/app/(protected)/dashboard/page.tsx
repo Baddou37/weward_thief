@@ -20,21 +20,24 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const supabase = await createClient();
 
-  let query = supabase
-    .from("thieves")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + PAGE_SIZE - 1);
+  let thieves: Thief[] | null = null;
+  let total = 0;
 
   if (q) {
-    const searchTerm = q.toLowerCase();
-    query = query.or(
-      `facebook_first_name.ilike.%${searchTerm}%,facebook_last_name.ilike.%${searchTerm}%,weward_pseudos.cs.{${searchTerm}}`,
-    );
+    const { data, count } = await supabase
+      .rpc("search_thieves", { term: q }, { count: "exact" })
+      .range(offset, offset + PAGE_SIZE - 1);
+    thieves = data as Thief[];
+    total = count ?? 0;
+  } else {
+    const { data, count } = await supabase
+      .from("thieves")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
+    thieves = data;
+    total = count ?? 0;
   }
-
-  const { data: thieves, count } = await query;
-  const total = count ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const entriesSubtitle =

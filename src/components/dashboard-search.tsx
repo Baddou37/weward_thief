@@ -16,23 +16,26 @@ export function DashboardSearch({ defaultQ }: DashboardSearchProps) {
   const t = useTranslations()
   const [value, setValue] = useState(defaultQ)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isMounted = useRef(false)
 
   const updateSearch = useCallback((q: string) => {
     const params = new URLSearchParams()
     if (q) params.set('q', q)
     params.set('page', '1')
-    router.push(`${pathname}?${params.toString()}`)
+    router.replace(`${pathname}?${params.toString()}`)
   }, [pathname, router])
 
   useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true
+      return
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      updateSearch(value)
-    }, 300)
+    debounceRef.current = setTimeout(() => updateSearch(value), 300)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [value, updateSearch])
+  }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleClear() {
     setValue('')
