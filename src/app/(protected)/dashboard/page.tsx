@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { StatusBadge } from "@/components/status-badge";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { DashboardSearch } from "@/components/dashboard-search";
@@ -7,7 +6,7 @@ import type { Thief } from "@/types";
 import { getT } from "@/lib/i18n/server";
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }
 
 const PAGE_SIZE = 20;
@@ -16,7 +15,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const { locale, t } = await getT();
   const params = await searchParams;
   const q = params.q ?? "";
-  const status = params.status ?? "";
   const page = Math.max(1, parseInt(params.page ?? "1"));
   const offset = (page - 1) * PAGE_SIZE;
 
@@ -27,10 +25,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(offset, offset + PAGE_SIZE - 1);
-
-  if (status === "confirmed" || status === "suspected") {
-    query = query.eq("status", status);
-  }
 
   if (q) {
     const searchTerm = q.toLowerCase();
@@ -55,7 +49,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <p className="text-sm text-gray-500 dark:text-gray-400">{entriesSubtitle}</p>
       </div>
 
-      <DashboardSearch defaultQ={q} defaultStatus={status} />
+      <DashboardSearch defaultQ={q} />
 
       {/* Mobile cards */}
       <div className="mt-4 space-y-4 lg:hidden">
@@ -66,8 +60,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             className="block"
           >
             <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
+              <div>
                   <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                     {thief.weward_pseudos.length > 0 ? (
                       thief.weward_pseudos.join(", ")
@@ -76,7 +69,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     )}
                   </p>
                   {(thief.facebook_first_name || thief.facebook_last_name) && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    <p className="text-sm text-gray-400 dark:text-gray-500 truncate">
                       {[thief.facebook_first_name, thief.facebook_last_name]
                         .filter(Boolean)
                         .join(" ")}
@@ -88,8 +81,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     </p>
                   )}
                 </div>
-                <StatusBadge status={thief.status} />
-              </div>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                 {formatDate(thief.created_at, locale)}
               </p>
@@ -117,9 +108,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {t("dashboard.colType")}
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t("dashboard.colStatus")}
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {t("dashboard.colDate")}
@@ -153,11 +141,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                       {thief.arnaque_type ?? "—"}
                     </Link>
                   </td>
-                  <td className="px-4 py-3">
-                    <Link href={`/voleurs/${thief.id}`} className="block">
-                      <StatusBadge status={thief.status} />
-                    </Link>
-                  </td>
                   <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                     <Link href={`/voleurs/${thief.id}`} className="block">
                       {formatDate(thief.created_at, locale)}
@@ -168,7 +151,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               {(!thieves || thieves.length === 0) && (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={4}
                     className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                   >
                     {t("dashboard.noResults")}
@@ -189,7 +172,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <div className="flex gap-2">
             {page > 1 && (
               <Link
-                href={`/dashboard?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&page=${page - 1}`}
+                href={`/dashboard?q=${encodeURIComponent(q)}&page=${page - 1}`}
                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 {t("dashboard.prev")}
@@ -197,7 +180,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             )}
             {page < totalPages && (
               <Link
-                href={`/dashboard?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&page=${page + 1}`}
+                href={`/dashboard?q=${encodeURIComponent(q)}&page=${page + 1}`}
                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 {t("dashboard.next")}

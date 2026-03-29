@@ -1,79 +1,63 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useTranslations } from '@/lib/i18n/use-translations'
 
 interface DashboardSearchProps {
   defaultQ: string
-  defaultStatus: string
 }
 
-export function DashboardSearch({ defaultQ, defaultStatus }: DashboardSearchProps) {
+export function DashboardSearch({ defaultQ }: DashboardSearchProps) {
   const router = useRouter()
   const pathname = usePathname()
   const t = useTranslations()
+  const [value, setValue] = useState(defaultQ)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const updateSearch = useCallback((q: string, status: string) => {
+  const updateSearch = useCallback((q: string) => {
     const params = new URLSearchParams()
     if (q) params.set('q', q)
-    if (status) params.set('status', status)
     params.set('page', '1')
     router.push(`${pathname}?${params.toString()}`)
   }, [pathname, router])
 
-  const statuses = [
-    { value: '', label: t('search.all') },
-    { value: 'confirmed', label: t('search.confirmed') },
-    { value: 'suspected', label: t('search.suspected') },
-  ]
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      updateSearch(value)
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [value, updateSearch])
+
+  function handleClear() {
+    setValue('')
+    updateSearch('')
+  }
 
   return (
-    <div className="space-y-3">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          const formData = new FormData(e.currentTarget)
-          updateSearch(formData.get('q') as string ?? '', defaultStatus)
-        }}
-        className="flex gap-2"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-          <Input
-            name="q"
-            defaultValue={defaultQ}
-            placeholder={t('search.placeholder')}
-            className="pl-9"
-          />
-        </div>
-        <Button type="submit">{t('search.search')}</Button>
-      </form>
-      <div className="flex gap-2">
-        {statuses.map((s) => {
-          const active = defaultStatus === s.value
-          const isStatusChip = s.value === 'confirmed' || s.value === 'suspected'
-          return (
-            <button
-              key={s.value}
-              type="button"
-              onClick={() => updateSearch(defaultQ, s.value)}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                active && isStatusChip
-                  ? 'border-transparent bg-transparent font-semibold text-blue-600 dark:text-blue-400'
-                  : active
-                    ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500'
-                    : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800'
-              }`}
-            >
-              {s.label}
-            </button>
-          )
-        })}
-      </div>
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
+      <Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={t('search.placeholder')}
+        className="pl-9 pr-9"
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={handleClear}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          aria-label="Effacer"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
     </div>
   )
 }
